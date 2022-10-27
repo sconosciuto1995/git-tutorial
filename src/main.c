@@ -152,16 +152,16 @@ void create_timer(int tick) {
 
 void statemachine_callback(void) {
 
-  my_states_data **cur_data = states_get_data();
+  my_states_data *cur_data = states_get_data();
 
 
-  int diff = (*cur_data)->cur_val - (*cur_data)->prev_val;
+  int diff = cur_data->cur_val - cur_data->prev_val;
 
   count += diff;
 
   printf("%s\nTotal count: %d\nIn state %d, state count: %d\n---------\n",
          states_get_state_name(), count, states_get_state_id() + 1,
-         (*cur_data)->cur_val);
+         cur_data->cur_val);
 
   states_set_state(rand() %
                    states_get_state_count()); /** Switch to random next state */
