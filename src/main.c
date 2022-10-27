@@ -60,7 +60,7 @@ typedef struct {
   int verbose;
   int tick;
  
-} arguments_t:
+} arguments_t;
 
 
 void errno_abort(char *message) {
@@ -92,7 +92,11 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
   return 0;
 }
-
+int err_abort(int status, char *message) {
+  fprintf(stderr, "%s\n", message);
+  exit(status);
+  return 0;
+}
 static struct argp argp = {options, parse_opt, args_doc, doc};
 
 void timer_callback(union sigval arg) {
@@ -151,13 +155,13 @@ void statemachine_callback(void) {
   my_states_data **cur_data = states_get_data();
 
 
-  int diff = cur_data->cur_val - cur_data->prev_val;
+  int diff = (*cur_data)->cur_val - (*cur_data)->prev_val;
 
   count += diff;
 
   printf("%s\nTotal count: %d\nIn state %d, state count: %d\n---------\n",
          states_get_state_name(), count, states_get_state_id() + 1,
-         cur_data->cur_val);
+         (*cur_data)->cur_val);
 
   states_set_state(rand() %
                    states_get_state_count()); /** Switch to random next state */
@@ -184,7 +188,7 @@ int main(int argc, char **argv) {
 
   /** Initialize state machine */
 
-  states_add(state_probe, state_two_enter, state_two_run, state_two_ext,
+  states_add(state_probe, state_two_enter, state_two_run, state_two_exit,
              state_second_e, SECOND_STATE_NAME);
   states_add(state_probe, NULL, state_three_run, NULL, state_third_e,
              THIRD_STATE_NAME);
@@ -203,10 +207,8 @@ int main(int argc, char **argv) {
 
   error = pthread_mutex_lock(&mutex);
 
-  if (error = 0)
-=======
-  if (!error)
->>>>>>> unknown_features
+  if (error != 0)
+
     err_abort(error, "Lock mutex");
 
   while (count < count_to) {
@@ -224,12 +226,6 @@ int main(int argc, char **argv) {
   printf("Finshed\n");
 
 
-  return;
-
-}
-
-int err_abort(int status, char *message) {
-  fprintf(stderr, "%s\n", message);
-  exit(status);
   return 0;
+
 }
